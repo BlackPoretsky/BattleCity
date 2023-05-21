@@ -1,6 +1,0 @@
-E:/Study/Разработка/Engine/build2/CMakeFiles/BattleCity.dir
-E:/Study/Разработка/Engine/build2/CMakeFiles/ALL_BUILD.dir
-E:/Study/Разработка/Engine/build2/CMakeFiles/ZERO_CHECK.dir
-E:/Study/Разработка/Engine/build2/external_lib/glfw/CMakeFiles/ALL_BUILD.dir
-E:/Study/Разработка/Engine/build2/external_lib/glfw/src/CMakeFiles/glfw.dir
-E:/Study/Разработка/Engine/build2/external_lib/glfw/src/CMakeFiles/update_mappings.dir
