@@ -16,8 +16,8 @@ namespace Renderer {
 		ShaderProgram(ShaderProgram&) = delete;
 		ShaderProgram& operator=(const ShaderProgram&) = delete;
 
-		ShaderProgram(ShaderProgram&&);
-		ShaderProgram& operator=(ShaderProgram&&);
+		ShaderProgram(ShaderProgram&&) noexcept;
+		ShaderProgram& operator=(ShaderProgram&&) noexcept;
 
 	private:
 		bool createShader(const std::string& source, GLenum shaderType, GLuint& shaderID);

@@ -73,7 +73,7 @@ namespace Renderer {
 		glUseProgram(m_ID);
 	}
 
-	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram)
+	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram) noexcept
 	{
 		glDeleteProgram(m_ID);
 		m_ID = shaderProgram.m_ID;
@@ -85,7 +85,7 @@ namespace Renderer {
 		return *this;
 	}
 
-	ShaderProgram::ShaderProgram(ShaderProgram&& shaderProgram)
+	ShaderProgram::ShaderProgram(ShaderProgram&& shaderProgram) noexcept
 	{
 		m_ID = shaderProgram.m_ID;
 		m_isCompiled = shaderProgram.m_isCompiled;
