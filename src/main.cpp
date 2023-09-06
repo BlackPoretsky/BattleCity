@@ -1,38 +1,31 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-#include "Renderer/ShaderProgramm.h"
 #include "Resources/ResourceManager.h"
+#include "Game/Game.h"
+#include "Renderer/Renderer.h"
 
 #include <iostream>
+#include <chrono>
 
+glm::ivec2 g_windowSize(13 * 16, 14 * 16);
 
-GLfloat point[] = {
-    0.0f, 0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f
-};
+std::unique_ptr<Game> g_game = std::make_unique<Game>(g_windowSize);
 
-GLfloat colors[] = {
-    1.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f
-};
-
-int g_windowSizeX = 640;
-int g_windowSizeY = 480;
-
-void glfwWindowSizeCallBack(GLFWwindow* pWindow, int width, int high) 
+void glfwWindowSizeCallBack(GLFWwindow* pWindow, int width, int hiegh) 
 {
-    g_windowSizeX = width;
-    g_windowSizeY = high;
-    glViewport(0, 0, g_windowSizeX, g_windowSizeY);
+    RenderEngine::Renderer::setViewport(width, hiegh);
 }
 
 void glfwKeyCallBack(GLFWwindow* pWindow, int key, int scancode, int action, int mode)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(pWindow, GL_TRUE);
+
+    g_game->setKey(key, action);
 }
 
 int main(int argc, char** argv)
@@ -48,7 +41,7 @@ int main(int argc, char** argv)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(g_windowSizeX, g_windowSizeY, "Battle city", nullptr, nullptr);
+    window = glfwCreateWindow(g_windowSize.x, g_windowSize.y, "Battle city", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();
@@ -67,57 +60,40 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
-    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "Renderer: " << RenderEngine::Renderer::getRendererStr() << std::endl;
+    std::cout << "OpenGL version: " << RenderEngine::Renderer::getVersionStr() << std::endl;
 
-    glClearColor(0, 0, 0, 1);
-    {
-        ResourceManager resourceManager(argv[0]);
-        auto pDefaultShaderProgram = resourceManager.loadShaders("DefaultShader", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
-        if (!pDefaultShaderProgram)
-        {
-            std::cerr << "Can't create shader program: " << "Defaulte shader" << std::endl;
-            return -1;
-        }
+    RenderEngine::Renderer::setClearColor(0, 0, 0, 1);
 
-        GLuint points_vbo = 0;
-        glGenBuffers(1, &points_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(point), point, GL_STATIC_DRAW);
+    {  
+        ResourceManager::setExecutablePath(static_cast<std::string>(argv[0]));
 
-        GLuint colors_vbo = 0;
-        glGenBuffers(1, &colors_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+        bool gameStatus = g_game->init();
 
-        GLuint vao = 0;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        auto lastTime = std::chrono::high_resolution_clock::now();
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
-            /* Render here */
-            glClear(GL_COLOR_BUFFER_BIT);
+            /* Poll for and process events */
+            glfwPollEvents();
 
-            pDefaultShaderProgram->use();
-            glBindVertexArray(vao);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            uint64_t duration = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - lastTime).count();
+            lastTime = currentTime;
+            g_game->update(duration);
+
+            /* Render here */
+            RenderEngine::Renderer::clear();
+
+            g_game->render();
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
 
-            /* Poll for and process events */
-            glfwPollEvents();
         }
+        g_game = nullptr;
+        ResourceManager::unloadAllResources();
     }
     glfwTerminate();
     return 0;

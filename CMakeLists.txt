@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.27.4 FATAL_ERROR)
 
 set(PROJECT_NAME BattleCity)
 
@@ -6,10 +6,42 @@ project(${PROJECT_NAME})
 
 add_executable(${PROJECT_NAME} 
 	src/main.cpp
+
 	src/Renderer/ShaderProgramm.cpp
 	src/Renderer/ShaderProgramm.h
+	src/Renderer/Texture2D.cpp
+	src/Renderer/Texture2D.h
+	src/Renderer/Sprite.cpp
+	src/Renderer/Sprite.h
+	src/Renderer/AnimatedSprite.cpp
+	src/Renderer/AnimatedSprite.h
+	src/Renderer/VertexBuffer.cpp
+	src/Renderer/VertexBuffer.h
+	src/Renderer/IndexBuffer.cpp
+	src/Renderer/IndexBuffer.h
+	src/Renderer/VertexArray.cpp
+	src/Renderer/VertexArray.h
+	src/Renderer/VertexBufferLayout.cpp
+	src/Renderer/VertexBufferLayout.h
+	src/Renderer/Renderer.cpp
+	src/Renderer/Renderer.h
+
 	src/Resources/ResourceManager.cpp
 	src/Resources/ResourceManager.h
+	src/Resources/stb_image.h
+
+	src/Game/Game.cpp
+	src/Game/Game.h
+
+	src/Game/Level.cpp
+	src/Game/Level.h
+
+	src/Game/GameObject/Tank.cpp
+	src/Game/GameObject/Tank.h
+	src/Game/GameObject/BrickWall.cpp
+	src/Game/GameObject/BrickWall.h
+	src/Game/GameObject/IGameObject.cpp
+	src/Game/GameObject/IGameObject.h
 )
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -24,6 +56,9 @@ target_link_libraries(${PROJECT_NAME} glfw)
 
 add_subdirectory(external_lib/glad)
 target_link_libraries(${PROJECT_NAME} glad)
+
+include_directories(external_lib/glm)
+include_directories(external_lib/rapidjson/include)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 
